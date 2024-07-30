@@ -1,18 +1,33 @@
+"use client";
+
+import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function Navbar() {
+
+  const pathName = usePathname();
   return (
     <div className="flex flex-col gap-4 border-r bg-muted/40 p-4">
       <Link
         href="/"
-        className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-primary-foreground"
+        className={cn([
+          "flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted/50",
+          pathName === "/" && "bg-primary text-primary-foreground",
+        ])}
+        id="home"
       >
         <UploadIcon className="h-5 w-5" />
         Upload File
       </Link>
       <Link
         href="/all-files"
-        className="flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted/50"
+        className={cn([
+          "flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted/50",
+          pathName === "/all-files" && "bg-primary text-primary-foreground",
+        ])}
+        id="all-files"
       >
         <FileIcon className="h-5 w-5" />
         All Files

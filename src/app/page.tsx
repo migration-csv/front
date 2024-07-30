@@ -1,12 +1,19 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/cISHmRqLyNe
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+"use client";
 
 import { Navbar } from "@/components/navbar";
+import { useCallback } from "react";
 
 export default function Component() {
+  const handleFileUpload = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      const response = fetch("localhost:3000/api/upload", {
+        method: "POST",
+        body: JSON.stringify({ file }),
+      });
+    },
+    []
+  );
   return (
     <div className="flex min-h-screen w-full">
       <Navbar />
@@ -37,7 +44,12 @@ export default function Component() {
               <span className="font-medium text-muted-foreground">
                 Click to upload a file
               </span>
-              <input id="file-input" type="file" className="sr-only" />
+              <input
+                id="file-input"
+                type="file"
+                className="sr-only"
+                onChange={handleFileUpload}
+              />
             </label>
           </div>
           <button
