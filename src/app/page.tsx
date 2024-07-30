@@ -10,7 +10,7 @@ export default function Component() {
   const handleFileUpload = useCallback(() => {
     if (!file) return;
     setLoading(true);
-    const tableName = file.name.split(".")[0];
+    const tableName = file.name.split(".")[0].replace("-", "_");
     const formData = new FormData();
     formData.append("file", file);
 

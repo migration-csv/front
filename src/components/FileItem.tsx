@@ -8,7 +8,6 @@ interface FileItemProps {
 
 export function FileItem({ fileName, uploadedAt }: FileItemProps) {
   const handleDownload = useCallback(() => {
-    console.log("aquiii");
     fetch(`http://localhost:5000/download/${fileName}`)
       .then((response) => response.blob())
       .then((blob) => {
@@ -23,6 +22,16 @@ export function FileItem({ fileName, uploadedAt }: FileItemProps) {
       });
   }, [fileName]);
 
+  const handleDelete = useCallback(() => {
+    fetch(`http://localhost:5000/files/${fileName}`, {
+      method: "DELETE",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
+  }, []);
+
   return (
     <div className="flex items-center justify-between rounded-md bg-background p-4 shadow">
       <div className="flex items-center gap-4">
@@ -36,7 +45,7 @@ export function FileItem({ fileName, uploadedAt }: FileItemProps) {
         <Button variant="ghost" size="icon" onClick={handleDownload}>
           <DownloadIcon className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={handleDelete}>
           <TrashIcon className="h-5 w-5" />
         </Button>
       </div>
