@@ -2,16 +2,16 @@
 
 import { FileItem } from "@/components/FileItem";
 import { Navbar } from "@/components/NavBar";
-import useSWR from 'swr'
- 
-function Profile () {
-  const { data, error, isLoading } = useSWR('/api/user/123', fetcher)
- 
-  if (error) return <div>falhou ao carregar</div>
-  if (isLoading) return <div>carregando...</div>
- 
+import useSWR from "swr";
+
+function Profile() {
+  const { data, error, isLoading } = useSWR("/api/user/123", fetcher);
+
+  if (error) return <div>falhou ao carregar</div>;
+  if (isLoading) return <div>carregando...</div>;
+
   // renderizar dados
-  return <div>olá {data.name}!</div>
+  return <div>olá {data.name}!</div>;
 }
 import { useState } from "react";
 
@@ -21,14 +21,28 @@ interface FileProps {
   update_at: string;
 }
 
-const fetcher = (...args: any[]) => fetch(...args).then(res => res.json())
+export const fetcher = async (
+  url: string,
+  options?: RequestInit
+): Promise<any> => {
+  try {
+    const response = await fetch(url, options);
+    return response.json();
+  } catch (error) {
+    console.error("Fetch error:", error);
+    throw error;
+  }
+};
 
 export default function Component() {
-  const { data: files, error, isLoading } = useSWR('http://localhost:5000/files', fetcher)
- 
-  if (error) return <div>falhou ao carregar</div>
-  if (isLoading) return <div>carregando...</div>
-  
+  const {
+    data: files,
+    error,
+    isLoading,
+  } = useSWR("http://localhost:5000/files", fetcher);
+
+  if (error) return <div>falhou ao carregar</div>;
+  if (isLoading) return <div>carregando...</div>;
 
   return (
     <div className="flex min-h-screen w-full">
@@ -39,7 +53,7 @@ export default function Component() {
         </header>
         <div className="grid gap-4">
           {files &&
-            files.map((file) => {
+            files.map((file: FileProps) => {
               return (
                 <FileItem
                   key={file.id}

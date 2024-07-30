@@ -1,3 +1,4 @@
+import React, { useCallback } from "react";
 import { Button } from "./ui/button";
 
 interface FileItemProps {
@@ -6,19 +7,33 @@ interface FileItemProps {
 }
 
 export function FileItem({ fileName, uploadedAt }: FileItemProps) {
+  const handleDownload = useCallback(() => {
+    console.log("aquiii");
+    fetch(`http://localhost:5000/download/${fileName}`)
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      });
+  }, [fileName]);
+
   return (
     <div className="flex items-center justify-between rounded-md bg-background p-4 shadow">
       <div className="flex items-center gap-4">
         <FileIcon className="h-8 w-8 text-muted-foreground" />
         <div>
           <div className="font-medium">{fileName}</div>
-          <div className="text-sm text-muted-foreground">
-            {uploadedAt}
-          </div>
+          <div className="text-sm text-muted-foreground">{uploadedAt}</div>
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={handleDownload}>
           <DownloadIcon className="h-5 w-5" />
         </Button>
         <Button variant="ghost" size="icon">
