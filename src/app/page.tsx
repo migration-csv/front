@@ -1,19 +1,30 @@
 "use client";
 
-import { Navbar } from "@/components/navbar";
-import { useCallback } from "react";
+import { Navbar } from "@/components/NavBar";
+import { useCallback, useState } from "react";
 
 export default function Component() {
-  const handleFileUpload = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      const response = fetch("localhost:3000/api/upload", {
-        method: "POST",
-        body: JSON.stringify({ file }),
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleFileUpload = useCallback(() => {
+    if (!file) return;
+    setLoading(true);
+    const tableName = file.name.split(".")[0];
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch(`http://localhost:5000/files/${tableName}`, {
+      method: "POST",
+      body: formData,
+    })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      }).finally(() => {
+        setLoading(false);
       });
-    },
-    []
-  );
+  }, [file]);
+
   return (
     <div className="flex min-h-screen w-full">
       <Navbar />
@@ -48,15 +59,21 @@ export default function Component() {
                 id="file-input"
                 type="file"
                 className="sr-only"
-                onChange={handleFileUpload}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setFile(e.target.files[0]);
+                  }
+                }}
               />
             </label>
           </div>
           <button
             type="submit"
             className="w-full px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={handleFileUpload}
+            disabled={loading}
           >
-            Upload File
+            {loading ? "Uploading..." : "Upload File"}
           </button>
         </div>
       </div>
