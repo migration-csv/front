@@ -1,34 +1,77 @@
 "use client";
 
+import {
+  AlertModal,
+  ErrorResponse,
+  HttpResponse,
+  SuccessResponse,
+} from "@/components/AlertModal";
 import { Navbar } from "@/components/NavBar";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Component() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState<HttpResponse | null>(null);
+  const [fadeClass, setFadeClass] = useState<string>("animate-fadeIn");
 
-  const handleFileUpload = useCallback(() => {
+  const handleFileUpload = useCallback(async () => {
     if (!file) return;
     setLoading(true);
     const tableName = file.name.split(".")[0].replace("-", "_");
     const formData = new FormData();
     formData.append("file", file);
 
-    fetch(`http://localhost:5000/files/${tableName}`, {
-      method: "POST",
-      body: formData,
-    })
-      .catch((error) => {
-        console.error("Error uploading file:", error);
-      }).finally(() => {
-        setLoading(false);
+    try {
+      const response = await fetch(`http://localhost:5000/files/${tableName}`, {
+        method: "POST",
+        body: formData,
       });
+
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        const successResponse: SuccessResponse = {
+          status: 201,
+          message: data.message || "Upload successful",
+        };
+        setResponse(successResponse);
+      } else {
+        const errorResponse: ErrorResponse = {
+          status: response.status as 400 | 500,
+          error: data.error || "Upload failed",
+        };
+        setResponse(errorResponse);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setResponse({ status: 500, error: "Network error" });
+    } finally {
+      setLoading(false);
+    }
   }, [file]);
+
+  useEffect(() => {
+    if (response) {
+      setFadeClass("animate-fadeIn");
+      const timer = setTimeout(() => {
+        setFadeClass("animate-fadeOut");
+        setTimeout(() => setResponse(null), 500);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [response]);
 
   return (
     <div className="flex min-h-screen w-full">
       <Navbar />
-      <div className="flex flex-1 flex-col items-center justify-center bg-background">
+
+      <div className="flex flex-1 flex-col items-center justify-center bg-background relative">
+        {response && (
+          <div className={`absolute top-0 left-0 w-full ${fadeClass}`}>
+            <AlertModal response={response} />
+          </div>
+        )}
         <header className="mb-8">
           <h1 className="text-2xl font-bold text-foreground">
             File Upload Page
@@ -53,7 +96,7 @@ export default function Component() {
                 />
               </svg>
               <span className="font-medium text-muted-foreground">
-                Click to upload a file
+                {file ? file.name : "Click to upload a file"}
               </span>
               <input
                 id="file-input"
@@ -73,7 +116,15 @@ export default function Component() {
             onClick={handleFileUpload}
             disabled={loading}
           >
-            {loading ? "Uploading..." : "Upload File"}
+            {loading ? (
+              <>
+                <span className="text-primary-foreground animate-dots">
+                  Uploading...
+                </span>
+              </>
+            ) : (
+              "Upload File"
+            )}
           </button>
         </div>
       </div>

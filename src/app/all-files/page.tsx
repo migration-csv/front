@@ -13,7 +13,6 @@ function Profile() {
   // renderizar dados
   return <div>olá {data.name}!</div>;
 }
-import { useState } from "react";
 
 interface FileProps {
   id: number;
@@ -27,7 +26,8 @@ export const fetcher = async (
 ): Promise<any> => {
   try {
     const response = await fetch(url, options);
-    return response.json();
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Fetch error:", error);
     throw error;
@@ -43,6 +43,8 @@ export default function Component() {
 
   if (error) return <div>falhou ao carregar</div>;
   if (isLoading) return <div>carregando...</div>;
+
+  console.log(files);
 
   return (
     <div className="flex min-h-screen w-full">
