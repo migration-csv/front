@@ -34,8 +34,12 @@ export default function FileDetailPage() {
     isLoading,
   } = useSWR(`http://localhost:5000/tables/${tableName}`, fetcher);
 
-  console.log(tableName);
-  console.log(files);
+  const firstObject = files && files[0];
+  if (firstObject) {
+    Object.keys(firstObject).forEach((key) => {
+      console.log(key);
+    });
+  }
 
   const handleNavigate = (url: string) => {
     router.push(`http://localhost:3000/${url}`);
@@ -93,24 +97,32 @@ export default function FileDetailPage() {
         <div className="grid gap-6">
           <div>
             <h2 className="text-lg font-semibold">Table Preview</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Total</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Laptop</TableCell>
-                  <TableCell>10</TableCell>
-                  <TableCell>$999.99</TableCell>
-                  <TableCell>$9,999.90</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            {isLoading && <p>Loading...</p>}
+            {error && <p>Error loading data.</p>}
+            {files && files.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {Object.keys(firstObject).map((key) => (
+                      <TableHead key={key}>{key}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {files.map((file: Record<string, any>, index: number) => (
+                    <TableRow key={index}>
+                      {Object.values(file).map((value, idx) => (
+                        <TableCell key={idx}>
+                          {value as React.ReactNode}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              !isLoading && <p>No data available.</p>
+            )}
           </div>
         </div>
       </div>
