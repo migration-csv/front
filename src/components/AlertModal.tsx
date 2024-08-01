@@ -2,12 +2,12 @@ import { Alert } from "./ui/alert";
 
 export interface SuccessResponse {
   status: 201;
-  message: string; // Mensagem de sucesso
+  message: string;
 }
 
 export interface ErrorResponse {
   status: 400 | 500;
-  error: string; // Mensagem de erro
+  error: string;
 }
 
 export type HttpResponse = SuccessResponse | ErrorResponse | null;
@@ -38,9 +38,9 @@ export function AlertModal({ response }: AlertModalProps) {
   return (
     <div>
       <Alert variant={variant}>
-        <div className="flex flex-col items-center justify-center gap-2 py-8">
-          <Icon className="size-12" />
-          <p className="text-lg font-medium">{message}</p>
+        <div className="flex flex-col items-center justify-center gap-2 py-4">
+          <Icon className="h-12 w-12" />
+          <p className="text-base font-medium text-center">{message}</p>
         </div>
       </Alert>
     </div>

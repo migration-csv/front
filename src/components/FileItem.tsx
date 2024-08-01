@@ -1,4 +1,4 @@
-import { handleDelete, handleDownload } from "@/lib/functions";
+import { handleDownload } from "@/lib/functions";
 import Link from "next/link";
 import React, { useCallback } from "react";
 import { Button } from "./ui/button";
@@ -6,13 +6,13 @@ import { Button } from "./ui/button";
 interface FileItemProps {
   fileName: string;
   uploadedAt: string;
+  onDelete?: () => void;
 }
 
-export function FileItem({ fileName, uploadedAt }: FileItemProps) {
+export function FileItem({ fileName, uploadedAt, onDelete }: FileItemProps) {
   const onDownload = useCallback(() => handleDownload(fileName), [fileName]);
-  const onDelete = useCallback(() => handleDelete(fileName), [fileName]);
   return (
-    <div className="flex items-center justify-between rounded-md bg-background p-4 shadow">
+    <div className="flex items-center justify-between rounded-md bg-background p-4 shadow ">
       <Link href={`/detail-file/${fileName}`}>
         <div className="flex items-center gap-4">
           <FileIcon className="h-8 w-8 text-muted-foreground" />

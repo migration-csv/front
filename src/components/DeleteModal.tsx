@@ -12,9 +12,10 @@ import {
 
 interface DeleteModalProps {
   onDelete: () => void;
+  onCancel?: () => void;
 }
 
-export default function DeleteModal({ onDelete }: DeleteModalProps) {
+export default function DeleteModal({ onDelete, onCancel }: DeleteModalProps) {
   return (
     <AlertDialog defaultOpen>
       <AlertDialogTrigger asChild></AlertDialogTrigger>
@@ -26,7 +27,7 @@ export default function DeleteModal({ onDelete }: DeleteModalProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

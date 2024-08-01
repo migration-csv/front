@@ -76,7 +76,7 @@ export default function FileDetailPage() {
             </Link>
           </div>
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold text-foreground">
               {fileName}.csv
             </h1>
             <Button variant="outline" onClick={onDownload}>
@@ -96,7 +96,7 @@ export default function FileDetailPage() {
         </header>
         <div className="grid gap-6">
           <div>
-            <h2 className="text-lg font-semibold">Table Preview</h2>
+            <h2 className="text-2xl font-bold">Table Preview</h2>
             {isLoading && <p>Loading...</p>}
             {error && <p>Error loading data.</p>}
             {files && files.length > 0 ? (
@@ -104,7 +104,9 @@ export default function FileDetailPage() {
                 <TableHeader>
                   <TableRow>
                     {Object.keys(firstObject).map((key) => (
-                      <TableHead key={key}>{key}</TableHead>
+                      <TableHead key={key} className="text-lg font-bold">
+                        {key}
+                      </TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>

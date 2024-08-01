@@ -15,10 +15,13 @@ export const handleDownload = (fileName: string) => {
     });
 };
 
-export const handleDelete = (fileName: string) => {
-  fetch(`http://localhost:5000/files/${fileName}`, {
+export const handleDelete = async (fileName: string, mutate?: () => void) => {
+  await fetch(`http://localhost:5000/files/${fileName}`, {
     method: "DELETE",
   });
+  if (mutate) {
+    mutate();
+  }
 };
 
 export const fetcher = async (
@@ -28,7 +31,6 @@ export const fetcher = async (
   try {
     const response = await fetch(url, options);
     const data = await response.json();
-    console.log(data);
     return Array.isArray(data) ? data : data.data;
   } catch (error) {
     console.error("Fetch error:", error);
