@@ -14,11 +14,12 @@ import { fetcher, handleDelete, handleDownload } from "@/lib/functions";
 import { ArrowLeftIcon, DownloadIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
 
 export default function FileDetailPage() {
   const [isDelete, setIsDelete] = useState(false);
+  const [pageIndex, setPageIndex] = useState(1);
 
   const router = useRouter();
 
@@ -28,18 +29,25 @@ export default function FileDetailPage() {
   const fileName = match?.[1];
   const tableName = fileName?.replace(/-/g, "_");
 
-  const {
-    data: files,
-    error,
-    isLoading,
-  } = useSWR(`http://localhost:5000/tables/${tableName}`, fetcher);
+  const { data, error, isLoading } = useSWR(
+    `http://localhost:5000/tables/${tableName}?page=${pageIndex}`,
+    fetcher
+  );
 
-  const firstObject = files && files[0];
-  if (firstObject) {
-    Object.keys(firstObject).forEach((key) => {
-      console.log(key);
-    });
-  }
+  const totalPages = useMemo(() => {
+    return Math.ceil(data?.total_count / data?.per_page);
+  }, [data?.total_count]);
+
+  const files = data?.data;
+  const firstObject = files?.[0];
+
+  const handleNextPage = () => {
+    setPageIndex(pageIndex + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setPageIndex(pageIndex - 1);
+  };
 
   const handleNavigate = (url: string) => {
     router.push(`http://localhost:3000/${url}`);
@@ -95,7 +103,7 @@ export default function FileDetailPage() {
           </div>
         </header>
         <div className="grid gap-6">
-          <div>
+          <div className="overflow-y-scroll max-h-[calc(90vh-64px)]">
             <h2 className="text-2xl font-bold">Table Preview</h2>
             {isLoading && <p>Loading...</p>}
             {error && <p>Error loading data.</p>}
@@ -125,6 +133,22 @@ export default function FileDetailPage() {
             ) : (
               !isLoading && <p>No data available.</p>
             )}
+          </div>
+        </div>
+        <div className="flex justify-end absolute bottom-2 right-8">
+          <div className="flex items-center gap-2">
+            <Button
+              disabled={pageIndex <= 1 || isLoading}
+              onClick={handlePreviousPage}
+            >
+              Previous
+            </Button>
+            <span>
+              {pageIndex} ... {totalPages}
+            </span>
+            <Button disabled={isLoading} onClick={handleNextPage}>
+              Next
+            </Button>
           </div>
         </div>
       </div>

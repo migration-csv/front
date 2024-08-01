@@ -31,7 +31,7 @@ export const fetcher = async (
   try {
     const response = await fetch(url, options);
     const data = await response.json();
-    return Array.isArray(data) ? data : data.data;
+    return data;
   } catch (error) {
     console.error("Fetch error:", error);
     throw error;
