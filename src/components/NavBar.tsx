@@ -30,7 +30,38 @@ export function Navbar() {
         <FileIcon className="h-5 w-5" />
         All Files
       </Link>
+      <Link
+        href="/search"
+        className={cn([
+          "flex items-center gap-2 rounded-md px-3 py-2 text-muted-foreground hover:bg-muted/50",
+          pathName === "/search" && "bg-primary text-primary-foreground",
+        ])}
+        id="all-files"
+      >
+        <SearchIcon className="h-5 w-5" />
+        Search
+      </Link>
     </div>
+  );
+}
+
+function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.3-4.3" />
+    </svg>
   );
 }
 
