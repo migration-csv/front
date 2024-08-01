@@ -2,6 +2,7 @@
 
 import { FileItem } from "@/components/FileItem";
 import { Navbar } from "@/components/NavBar";
+import { fetcher } from "@/lib/functions";
 import useSWR from "swr";
 
 function Profile() {
@@ -20,20 +21,6 @@ interface FileProps {
   update_at: string;
 }
 
-export const fetcher = async (
-  url: string,
-  options?: RequestInit
-): Promise<any> => {
-  try {
-    const response = await fetch(url, options);
-    const data = await response.json();
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
-  }
-};
-
 export default function Component() {
   const {
     data: files,
@@ -43,8 +30,6 @@ export default function Component() {
 
   if (error) return <div>falhou ao carregar</div>;
   if (isLoading) return <div>carregando...</div>;
-
-  console.log(files);
 
   return (
     <div className="flex min-h-screen w-full">

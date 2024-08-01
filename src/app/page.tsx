@@ -29,7 +29,6 @@ export default function Component() {
       });
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         const successResponse: SuccessResponse = {
           status: 201,

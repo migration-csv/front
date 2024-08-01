@@ -1,3 +1,5 @@
+import { handleDelete, handleDownload } from "@/lib/functions";
+import Link from "next/link";
 import React, { useCallback } from "react";
 import { Button } from "./ui/button";
 
@@ -7,45 +9,24 @@ interface FileItemProps {
 }
 
 export function FileItem({ fileName, uploadedAt }: FileItemProps) {
-  const handleDownload = useCallback(() => {
-    fetch(`http://localhost:5000/download/${fileName}`)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      });
-  }, [fileName]);
-
-  const handleDelete = useCallback(() => {
-    fetch(`http://localhost:5000/files/${fileName}`, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-      });
-  }, []);
-
+  const onDownload = useCallback(() => handleDownload(fileName), [fileName]);
+  const onDelete = useCallback(() => handleDelete(fileName), [fileName]);
   return (
     <div className="flex items-center justify-between rounded-md bg-background p-4 shadow">
-      <div className="flex items-center gap-4">
-        <FileIcon className="h-8 w-8 text-muted-foreground" />
-        <div>
-          <div className="font-medium">{fileName}</div>
-          <div className="text-sm text-muted-foreground">{uploadedAt}</div>
+      <Link href={`/detail-file/${fileName}`}>
+        <div className="flex items-center gap-4">
+          <FileIcon className="h-8 w-8 text-muted-foreground" />
+          <div>
+            <div className="font-medium">{fileName}</div>
+            <div className="text-sm text-muted-foreground">{uploadedAt}</div>
+          </div>
         </div>
-      </div>
+      </Link>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={handleDownload}>
+        <Button variant="ghost" size="icon" onClick={onDownload}>
           <DownloadIcon className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={handleDelete}>
+        <Button variant="ghost" size="icon" onClick={onDelete}>
           <TrashIcon className="h-5 w-5" />
         </Button>
       </div>

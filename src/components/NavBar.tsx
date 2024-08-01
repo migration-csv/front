@@ -3,10 +3,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export function Navbar() {
-
   const pathName = usePathname();
   return (
     <div className="flex flex-col gap-4 border-r bg-muted/40 p-4">
