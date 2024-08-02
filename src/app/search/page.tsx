@@ -6,7 +6,6 @@
 "use client";
 
 import { Navbar } from "@/components/NavBar";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -189,14 +188,6 @@ export default function Component() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Uploaded</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Rows</TableHead>
-                  <TableHead>Columns</TableHead>
-                  <TableHead>Genre</TableHead>
-                  <TableHead>Launch Date</TableHead>
-                  <TableHead>Quantity Rating</TableHead>
-                  <TableHead>User ID</TableHead>
-                  <TableHead>Gender</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -204,34 +195,12 @@ export default function Component() {
                   <TableRow key={index}>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>{item.uploaded}</TableCell>
-                    <TableCell>{item.size}</TableCell>
-                    <TableCell>{item.rows}</TableCell>
-                    <TableCell>{item.columns}</TableCell>
-                    <TableCell>{item.genre}</TableCell>
-                    <TableCell>{item.launchDate}</TableCell>
-                    <TableCell>{item.quantityRating}</TableCell>
-                    <TableCell>{item.userId}</TableCell>
-                    <TableCell>{item.gender}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-          <div className="flex justify-end">
-            <div className="flex items-center gap-2">
-              <Button onClick={handlePrevPage} disabled={currentPage === 1}>
-                Previous
-              </Button>
-              <Button
-                onClick={handleNextPage}
-                disabled={
-                  currentPage === Math.ceil(sortedFiles.length / itemsPerPage)
-                }
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+          {/* <PaginationButtons /> */}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import DeleteModal from "@/components/DeleteModal";
+import { PaginationButtons } from "@/components/PaginationButton";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,12 +15,13 @@ import { fetcher, handleDelete, handleDownload } from "@/lib/functions";
 import { ArrowLeftIcon, DownloadIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
 
 export default function FileDetailPage() {
   const [isDelete, setIsDelete] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const router = useRouter();
 
@@ -34,9 +36,11 @@ export default function FileDetailPage() {
     fetcher
   );
 
-  const totalPages = useMemo(() => {
-    return Math.ceil(data?.total_count / data?.per_page);
-  }, [data?.total_count]);
+  useEffect(() => {
+    if (data && data.total_count && data.per_page) {
+      setTotalPages(Math.ceil(data.total_count / data.per_page));
+    }
+  }, [data]);
 
   const files = data?.data;
   const firstObject = files?.[0];
@@ -135,22 +139,13 @@ export default function FileDetailPage() {
             )}
           </div>
         </div>
-        <div className="flex justify-end absolute bottom-2 right-8">
-          <div className="flex items-center gap-2">
-            <Button
-              disabled={pageIndex <= 1 || isLoading}
-              onClick={handlePreviousPage}
-            >
-              Previous
-            </Button>
-            <span>
-              {pageIndex} ... {totalPages}
-            </span>
-            <Button disabled={isLoading} onClick={handleNextPage}>
-              Next
-            </Button>
-          </div>
-        </div>
+        <PaginationButtons
+          handleNextPage={handleNextPage}
+          handlePreviousPage={handlePreviousPage}
+          isLoading={isLoading}
+          pageIndex={pageIndex}
+          totalPages={totalPages}
+        />
       </div>
     </div>
   );
