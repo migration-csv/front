@@ -1,11 +1,9 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/CXqSMgMIHju
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
 "use client";
 
+import { MultiSelectorComponent } from "@/components/MultiSelectorComponent";
 import { Navbar } from "@/components/NavBar";
+import { PaginationButtons } from "@/components/PaginationButton";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -15,25 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { fetcher } from "@/lib/functions";
 import { useState } from "react";
+import useSWR from "swr";
 
 type File = {
-  name: string;
-  uploaded: string;
-  size: string;
-  rows: number;
-  columns: number;
-  genre: string;
-  launchDate: string;
-  quantityRating: number;
-  userId: number;
-  gender: string;
+  genres: string;
+  movie_id: number;
+  rating: number;
+  title: string;
+  user_id: number;
 };
 
 export default function Component() {
   const [search, setSearch] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [sortColumn, setSortColumn] = useState("name");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [genre, setGenre] = useState("");
@@ -41,87 +34,63 @@ export default function Component() {
   const [quantityRating, setQuantityRating] = useState("");
   const [userId, setUserId] = useState("");
   const [gender, setGender] = useState("");
-  const files = [
-    {
-      name: "Action.csv",
-      uploaded: "2 days ago",
-      size: "1.2 MB",
-      rows: 5000,
-      columns: 12,
-      genre: "Action",
-      launchDate: "2022-01-01",
-      quantityRating: 4,
-      userId: 1,
-      gender: "Male",
-    },
-    {
-      name: "Comedy.csv",
-      uploaded: "1 week ago",
-      size: "3.4 MB",
-      rows: 10000,
-      columns: 8,
-      genre: "Comedy",
-      launchDate: "2021-06-15",
-      quantityRating: 5,
-      userId: 2,
-      gender: "Female",
-    },
-    {
-      name: "Horror.csv",
-      uploaded: "3 days ago",
-      size: "800 KB",
-      rows: 2500,
-      columns: 6,
-      genre: "Horror",
-      launchDate: "2023-03-01",
-      quantityRating: 3,
-      userId: 3,
-      gender: "Male",
-    },
-    {
-      name: "Drama.csv",
-      uploaded: "1 day ago",
-      size: "2.1 MB",
-      rows: 7500,
-      columns: 10,
-      genre: "Drama",
-      launchDate: "2022-11-20",
-      quantityRating: 4,
-      userId: 4,
-      gender: "Female",
-    },
-  ];
-  const filteredFiles = files.filter((file) => {
-    return (
-      file.name.toLowerCase().includes(search.toLowerCase()) &&
-      (genre === "" || file.genre === genre) &&
-      (launchDate === "" || file.launchDate === launchDate) &&
-      (quantityRating === "" ||
-        file.quantityRating === parseInt(quantityRating)) &&
-      (userId === "" || file.userId === parseInt(userId)) &&
-      (gender === "" || file.gender === gender)
-    );
-  });
-  const sortedFiles = filteredFiles.sort((a, b) => {
-    const column = sortColumn as keyof File;
+  const [searchKey, setSearchKey] = useState("");
 
-    if (a[column] < b[column]) return sortOrder === "asc" ? -1 : 1;
-    if (a[column] > b[column]) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  });
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedFiles.slice(indexOfFirstItem, indexOfLastItem);
+  const { data, error, isLoading } = useSWR(
+    searchKey
+      ? `http://localhost:5000/search?${searchKey}&page=${currentPage}`
+      : "http://localhost:5000/search",
+    fetcher
+  );
+
+  console.log("searchKey", searchKey);
+
+  const files = Array.isArray(data?.data) ? data?.data : [];
+
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
+
   const handleNextPage = () => {
-    if (currentPage < Math.ceil(sortedFiles.length / itemsPerPage)) {
-      setCurrentPage(currentPage + 1);
-    }
+    setCurrentPage(currentPage + 1);
   };
+
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+
+  const handleValuesChange = (values: string[]) => {
+    setSelectedValues(values);
+  };
+
+  const formatSelectedValues = (): string => {
+    return selectedValues.join(",");
+  };
+
+  const formattedValues = formatSelectedValues();
+  console.log(formattedValues);
+
+  console.log("selectedValues", selectedValues);
+
+  const handleSearch = () => {
+    let searchKeyConstructor = "";
+    if (formattedValues !== "") {
+      searchKeyConstructor += `genres=${formattedValues}&`;
+    }
+    if (launchDate !== "") {
+      searchKeyConstructor += `year=${launchDate}&`;
+    }
+    if (quantityRating !== "") {
+      searchKeyConstructor += `min_rating=${quantityRating}&`;
+    }
+    if (userId !== "") {
+      searchKeyConstructor += `user_id=${userId}&`;
+    }
+
+    setSearchKey(searchKeyConstructor.slice(0, -1));
+    setCurrentPage(1);
+  };
+
   return (
     <div className="flex min-h-screen w-full">
       <Navbar />
@@ -132,13 +101,16 @@ export default function Component() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <label htmlFor="launchDate" className="text-muted-foreground">
-                  Launch Date
+                  Launch Year
                 </label>
                 <Input
                   id="launchDate"
-                  type="date"
+                  type="text"
+                  pattern="\d{4}"
+                  placeholder="YYYY"
                   value={launchDate}
                   onChange={(e) => setLaunchDate(e.target.value)}
+                  maxLength={4}
                 />
               </div>
               <div>
@@ -172,13 +144,16 @@ export default function Component() {
                 <label htmlFor="gender" className="text-muted-foreground">
                   Gender
                 </label>
-                <Input
-                  id="gender"
-                  type="text"
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                />
+                <MultiSelectorComponent onValuesChange={handleValuesChange} />
               </div>
+            </div>
+            <div className="flex w-full">
+              <Button
+                className="ml-auto btn-primary justify-end mt-4"
+                onClick={handleSearch}
+              >
+                Search
+              </Button>
             </div>
           </div>
           <div>
@@ -186,104 +161,50 @@ export default function Component() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Uploaded</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Genres</TableHead>
+                  <TableHead>Movie ID</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>User ID</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentItems.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.uploaded}</TableCell>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>Loading...</TableCell>
                   </TableRow>
-                ))}
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={5}>Error: {error.message}</TableCell>
+                  </TableRow>
+                ) : files.length > 0 ? (
+                  files.map((file: File, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{file.title}</TableCell>
+                      <TableCell>{file.genres}</TableCell>
+                      <TableCell>{file.movie_id}</TableCell>
+                      <TableCell>{file.rating}</TableCell>
+                      <TableCell>{file.user_id}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5}>No data available.</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
-          {/* <PaginationButtons /> */}
+          <PaginationButtons
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePrevPage}
+            pageIndex={currentPage}
+            isLoading={isLoading}
+            totalCount={data?.total_count}
+            perPage={data?.per_page}
+          />
         </div>
       </div>
     </div>
-  );
-}
-
-function FileIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
-      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
-    </svg>
-  );
-}
-
-function SearchIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
-function UploadIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-      <polyline points="17 8 12 3 7 8" />
-      <line x1="12" x2="12" y1="3" y2="15" />
-    </svg>
-  );
-}
-
-function XIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }

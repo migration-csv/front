@@ -15,13 +15,12 @@ import { fetcher, handleDelete, handleDownload } from "@/lib/functions";
 import { ArrowLeftIcon, DownloadIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import useSWR from "swr";
 
 export default function FileDetailPage() {
   const [isDelete, setIsDelete] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
 
   const router = useRouter();
 
@@ -35,12 +34,6 @@ export default function FileDetailPage() {
     `http://localhost:5000/tables/${tableName}?page=${pageIndex}`,
     fetcher
   );
-
-  useEffect(() => {
-    if (data && data.total_count && data.per_page) {
-      setTotalPages(Math.ceil(data.total_count / data.per_page));
-    }
-  }, [data]);
 
   const files = data?.data;
   const firstObject = files?.[0];
@@ -144,7 +137,8 @@ export default function FileDetailPage() {
           handlePreviousPage={handlePreviousPage}
           isLoading={isLoading}
           pageIndex={pageIndex}
-          totalPages={totalPages}
+          totalCount={data?.total_count}
+          perPage={data?.per_page}
         />
       </div>
     </div>

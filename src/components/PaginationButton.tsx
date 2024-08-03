@@ -1,8 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
 interface PaginationButtonsProps {
   pageIndex: number;
-  totalPages?: number;
+  totalCount?: number;
+  perPage?: number;
   isLoading: boolean;
   handleNextPage: () => void;
   handlePreviousPage: () => void;
@@ -10,11 +14,20 @@ interface PaginationButtonsProps {
 
 export function PaginationButtons({
   pageIndex,
-  totalPages,
+  totalCount,
+  perPage,
   isLoading,
   handleNextPage,
   handlePreviousPage,
 }: PaginationButtonsProps) {
+  const [totalPages, setTotalPages] = useState(0);
+
+  useEffect(() => {
+    if (totalCount && perPage) {
+      setTotalPages(Math.ceil(totalCount / perPage));
+    }
+  }, [totalCount, perPage]);
+
   return (
     <div className="flex justify-end absolute bottom-2 right-8">
       <div className="flex items-center gap-2">
