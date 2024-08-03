@@ -39,7 +39,7 @@ export default function Component() {
   const { data, error, isLoading } = useSWR(
     searchKey
       ? `http://localhost:5000/search?${searchKey}&page=${currentPage}`
-      : "http://localhost:5000/search",
+      : `http://localhost:5000/search?page=${currentPage}`,
     fetcher
   );
 
@@ -118,7 +118,7 @@ export default function Component() {
                   htmlFor="quantityRating"
                   className="text-muted-foreground"
                 >
-                  Quantity Rating
+                  Min Quantity Rating
                 </label>
                 <Input
                   id="quantityRating"
@@ -156,7 +156,7 @@ export default function Component() {
               </Button>
             </div>
           </div>
-          <div>
+          <div className="overflow-y-scroll max-h-[calc(60vh-70px)]">
             <h2 className="text-lg font-semibold">Search Results</h2>
             <Table>
               <TableHeader>
@@ -195,15 +195,15 @@ export default function Component() {
               </TableBody>
             </Table>
           </div>
-          <PaginationButtons
-            handleNextPage={handleNextPage}
-            handlePreviousPage={handlePrevPage}
-            pageIndex={currentPage}
-            isLoading={isLoading}
-            totalCount={data?.total_count}
-            perPage={data?.per_page}
-          />
         </div>
+        <PaginationButtons
+          handleNextPage={handleNextPage}
+          handlePreviousPage={handlePrevPage}
+          pageIndex={currentPage}
+          isLoading={isLoading}
+          totalCount={data?.total_count}
+          perPage={data?.per_page}
+        />
       </div>
     </div>
   );
