@@ -33,6 +33,8 @@ export const fetcher = async (
   try {
     const response = await fetch(`${apiBase}${path}`, options);
     const data = await response.json();
+    console.log(apiBase, path);
+    console.log(data);
     return data;
   } catch (error) {}
 };

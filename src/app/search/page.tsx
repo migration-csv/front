@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { apiBase, fetcher } from "@/lib/functions";
-import { use, useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -32,6 +32,7 @@ export default function Component() {
   const [totalRatings, setTotalRatings] = useState("");
   const [searchKey, setSearchKey] = useState("");
   const [tmdbId, setTmdbId] = useState(0);
+
   const { data, error, isLoading } = useSWR(
     searchKey
       ? `/search?${searchKey}&page=${currentPage}`
@@ -50,7 +51,7 @@ export default function Component() {
   const handleGetTmdbId = useCallback(async (movieId: number) => {
     const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
     const data = await response.json();
-    console.log(data.tmdbId)
+    console.log(data.tmdbId);
     setTmdbId(data.tmdbId);
   }, []);
 
@@ -83,6 +84,10 @@ export default function Component() {
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    // console.log(data);
+  }, [data]);
 
   return (
     <div className="flex min-h-screen w-full">
