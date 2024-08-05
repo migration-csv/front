@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetcher } from "@/lib/functions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -31,6 +31,7 @@ export default function Component() {
   const [quantityRating, setQuantityRating] = useState("");
   const [userId, setUserId] = useState("");
   const [searchKey, setSearchKey] = useState("");
+
   const { data, error, isLoading } = useSWR(
     searchKey
       ? `/search?${searchKey}&page=${currentPage}`
@@ -74,6 +75,10 @@ export default function Component() {
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    // console.log(data);
+  }, [data]);
 
   return (
     <div className="flex min-h-screen w-full">
