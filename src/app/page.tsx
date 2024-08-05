@@ -7,6 +7,7 @@ import {
   SuccessResponse,
 } from "@/components/AlertModal";
 import { Navbar } from "@/components/NavBar";
+import { apiBase } from "@/lib/functions";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Component() {
@@ -23,7 +24,7 @@ export default function Component() {
     formData.append("file", file);
 
     try {
-      const response = await fetch(`http://localhost:5000/files/${tableName}`, {
+      const response = await fetch(`${apiBase}/files/${tableName}`, {
         method: "POST",
         body: formData,
       });

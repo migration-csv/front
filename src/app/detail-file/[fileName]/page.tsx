@@ -36,7 +36,7 @@ export default function FileDetailPage() {
   );
 
   const files = data?.data;
-  const firstObject = files?.[0];
+  const columns = data?.columns
 
   const handleNextPage = () => {
     setPageIndex(pageIndex + 1);
@@ -108,9 +108,9 @@ export default function FileDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {Object.keys(firstObject).map((key) => (
-                      <TableHead key={key} className="text-lg font-bold">
-                        {key}
+                    {columns.map((column: string[], index: number) => (
+                      <TableHead key={index} className="text-lg font-bold">
+                        {column}
                       </TableHead>
                     ))}
                   </TableRow>

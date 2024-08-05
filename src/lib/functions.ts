@@ -1,4 +1,4 @@
-const apiBase = process.env.NEXT_PUBLIC_API_BASE;
+export const apiBase = process.env.NEXT_PUBLIC_API_BASE;
 
 export const handleDownload = (fileName: string) => {
   fetch(`${apiBase}/download/${fileName}`)

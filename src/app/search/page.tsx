@@ -22,14 +22,14 @@ type File = {
   movie_id: number;
   rating: number;
   title: string;
-  user_id: number;
+  total_ratings: number;
 };
 
 export default function Component() {
   const [currentPage, setCurrentPage] = useState(1);
   const [launchDate, setLaunchDate] = useState("");
   const [quantityRating, setQuantityRating] = useState("");
-  const [userId, setUserId] = useState("");
+  const [totalRatings, setTotalRatings] = useState("");
   const [searchKey, setSearchKey] = useState("");
   const { data, error, isLoading } = useSWR(
     searchKey
@@ -69,7 +69,7 @@ export default function Component() {
     if (launchDate !== "") searchKeyConstructor += `year=${launchDate}&`;
     if (quantityRating !== "")
       searchKeyConstructor += `min_rating=${quantityRating}&`;
-    if (userId !== "") searchKeyConstructor += `user_id=${userId}&`;
+    if (totalRatings !== "") searchKeyConstructor += `total_ratings=${totalRatings}&`;
 
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);
@@ -114,14 +114,14 @@ export default function Component() {
                 />
               </div>
               <div>
-                <label htmlFor="userId" className="text-muted-foreground">
-                  User ID
+                <label htmlFor="totalRatings" className="text-muted-foreground">
+                  Total Ratings
                 </label>
                 <Input
-                  id="userId"
+                  id="totalRatings"
                   type="number"
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
+                  value={totalRatings}
+                  onChange={(e) => setTotalRatings(e.target.value)}
                 />
               </div>
               <div>
@@ -149,7 +149,7 @@ export default function Component() {
                   <TableHead>Genres</TableHead>
                   <TableHead>Movie ID</TableHead>
                   <TableHead>Rating</TableHead>
-                  <TableHead>User ID</TableHead>
+                  <TableHead>Total Ratings</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -168,7 +168,7 @@ export default function Component() {
                       <TableCell>{file.genres}</TableCell>
                       <TableCell>{file.movie_id}</TableCell>
                       <TableCell>{file.rating}</TableCell>
-                      <TableCell>{file.user_id}</TableCell>
+                      <TableCell>{file.total_ratings}</TableCell>
                     </TableRow>
                   ))
                 ) : (
