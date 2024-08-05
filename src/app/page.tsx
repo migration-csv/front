@@ -43,7 +43,6 @@ export default function Component() {
         setResponse(errorResponse);
       }
     } catch (error) {
-      console.error("Error uploading file:", error);
       setResponse({ status: 500, error: "Network error" });
     } finally {
       setLoading(false);

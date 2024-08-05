@@ -1,7 +1,7 @@
-// fileHandlers.ts
+const apiBase = process.env.NEXT_PUBLIC_API_BASE;
 
 export const handleDownload = (fileName: string) => {
-  fetch(`http://localhost:5000/download/${fileName}`)
+  fetch(`${apiBase}/download/${fileName}`)
     .then((response) => response.blob())
     .then((blob) => {
       const url = window.URL.createObjectURL(blob);
@@ -16,7 +16,7 @@ export const handleDownload = (fileName: string) => {
 };
 
 export const handleDelete = async (fileName: string, mutate?: () => void) => {
-  await fetch(`http://localhost:5000/files/${fileName}`, {
+  await fetch(`${apiBase}/files/${fileName}`, {
     method: "DELETE",
   });
   if (mutate) {
@@ -25,15 +25,12 @@ export const handleDelete = async (fileName: string, mutate?: () => void) => {
 };
 
 export const fetcher = async (
-  url: string,
+  path: string,
   options?: RequestInit
 ): Promise<any> => {
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(`${apiBase}${path}`, options);
     const data = await response.json();
     return data;
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
-  }
+  } catch (error) {}
 };

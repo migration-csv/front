@@ -21,7 +21,7 @@ export default function Component() {
     data: files,
     error,
     mutate,
-  } = useSWR<FileProps[]>("http://localhost:5000/files", fetcher);
+  } = useSWR<FileProps[]>("/files", fetcher);
 
   const onDelete = async () => {
     await handleDelete(fileName, mutate);

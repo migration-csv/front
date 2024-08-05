@@ -20,7 +20,7 @@ export function PaginationButtons({
   handleNextPage,
   handlePreviousPage,
 }: PaginationButtonsProps) {
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     if (totalCount && perPage) {
@@ -40,7 +40,7 @@ export function PaginationButtons({
         <span>
           {pageIndex} ... {totalPages}
         </span>
-        <Button disabled={isLoading} onClick={handleNextPage}>
+        <Button disabled={isLoading || totalPages <= pageIndex} onClick={handleNextPage}>
           Next
         </Button>
       </div>

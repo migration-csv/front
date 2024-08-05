@@ -26,24 +26,17 @@ type File = {
 };
 
 export default function Component() {
-  const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [genre, setGenre] = useState("");
   const [launchDate, setLaunchDate] = useState("");
   const [quantityRating, setQuantityRating] = useState("");
   const [userId, setUserId] = useState("");
-  const [gender, setGender] = useState("");
   const [searchKey, setSearchKey] = useState("");
-
   const { data, error, isLoading } = useSWR(
     searchKey
-      ? `http://localhost:5000/search?${searchKey}&page=${currentPage}`
-      : `http://localhost:5000/search?page=${currentPage}`,
+      ? `/search?${searchKey}&page=${currentPage}`
+      : `/search?page=${currentPage}`,
     fetcher
   );
-
-  console.log("searchKey", searchKey);
 
   const files = Array.isArray(data?.data) ? data?.data : [];
 
@@ -68,24 +61,15 @@ export default function Component() {
   };
 
   const formattedValues = formatSelectedValues();
-  console.log(formattedValues);
-
-  console.log("selectedValues", selectedValues);
 
   const handleSearch = () => {
     let searchKeyConstructor = "";
-    if (formattedValues !== "") {
+    if (formattedValues !== "")
       searchKeyConstructor += `genres=${formattedValues}&`;
-    }
-    if (launchDate !== "") {
-      searchKeyConstructor += `year=${launchDate}&`;
-    }
-    if (quantityRating !== "") {
+    if (launchDate !== "") searchKeyConstructor += `year=${launchDate}&`;
+    if (quantityRating !== "")
       searchKeyConstructor += `min_rating=${quantityRating}&`;
-    }
-    if (userId !== "") {
-      searchKeyConstructor += `user_id=${userId}&`;
-    }
+    if (userId !== "") searchKeyConstructor += `user_id=${userId}&`;
 
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);

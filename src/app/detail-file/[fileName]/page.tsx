@@ -31,7 +31,7 @@ export default function FileDetailPage() {
   const tableName = fileName?.replace(/-/g, "_");
 
   const { data, error, isLoading } = useSWR(
-    `http://localhost:5000/tables/${tableName}?page=${pageIndex}`,
+    `/tables/${tableName}?page=${pageIndex}`,
     fetcher
   );
 
