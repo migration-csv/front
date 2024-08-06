@@ -13,8 +13,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetcher } from "@/lib/functions";
-import { useState } from "react";
+import { apiBase, fetcher } from "@/lib/functions";
+import { use, useCallback, useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -31,6 +31,7 @@ export default function Component() {
   const [quantityRating, setQuantityRating] = useState("");
   const [totalRatings, setTotalRatings] = useState("");
   const [searchKey, setSearchKey] = useState("");
+  const [tmdbId, setTmdbId] = useState(0);
   const { data, error, isLoading } = useSWR(
     searchKey
       ? `/search?${searchKey}&page=${currentPage}`
@@ -45,6 +46,13 @@ export default function Component() {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  const handleGetTmdbId = useCallback(async (movieId: number) => {
+    const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
+    const data = await response.json();
+    console.log(data.tmdbId)
+    setTmdbId(data.tmdbId);
+  }, []);
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -69,7 +77,8 @@ export default function Component() {
     if (launchDate !== "") searchKeyConstructor += `year=${launchDate}&`;
     if (quantityRating !== "")
       searchKeyConstructor += `min_rating=${quantityRating}&`;
-    if (totalRatings !== "") searchKeyConstructor += `total_ratings=${totalRatings}&`;
+    if (totalRatings !== "")
+      searchKeyConstructor += `total_ratings=${totalRatings}&`;
 
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);
@@ -164,7 +173,9 @@ export default function Component() {
                 ) : files.length > 0 ? (
                   files.map((file: File, index: number) => (
                     <TableRow key={index}>
-                      <TableCell>{file.title}</TableCell>
+                      <button onClick={() => handleGetTmdbId(file.movie_id)}>
+                        <TableCell>{file.title}</TableCell>
+                      </button>
                       <TableCell>{file.genres}</TableCell>
                       <TableCell>{file.movie_id}</TableCell>
                       <TableCell>{file.rating}</TableCell>

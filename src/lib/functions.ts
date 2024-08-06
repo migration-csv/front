@@ -1,4 +1,6 @@
 export const apiBase = process.env.NEXT_PUBLIC_API_BASE;
+export const apiBaseTmdb = process.env.NEXT_PUBLIC_API_BASE_TMDB;
+export const apiKeyTmdb = process.env.NEXT_PUBLIC_API_KEY_TMDB;
 
 export const handleDownload = (fileName: string) => {
   fetch(`${apiBase}/download/${fileName}`)
