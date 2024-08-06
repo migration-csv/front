@@ -1,7 +1,9 @@
 "use client";
 
 import { apiBase } from "@/lib/functions";
+import { ArrowLeftIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { SVGProps, useEffect, useState } from "react";
 
@@ -25,6 +27,131 @@ type MovieDetailsProps = {
   synopsis: string;
   cast: CastMember[];
   reviews: Review[];
+};
+
+const MovieDetails = () => {
+  const params = useParams();
+  const [movieDetails, setMovieDetails] = useState<MovieProps>();
+  const [imdbDetails, setImdbDetails] = useState<ImdbDetailProps>();
+
+  async function handleGetTmdbId(movieId: number) {
+    const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
+    const data = await response.json();
+    return data.tmdbId;
+  }
+
+  const apiTmdb = process.env.NEXT_PUBLIC_API_BASE_TMDB;
+  const apiKeyTmdb = process.env.NEXT_PUBLIC_API_KEY_TMDB;
+  const apiKeyImdb = process.env.NEXT_PUBLIC_API_KEY_IMDB;
+  const apiTmdbImg = process.env.NEXT_PUBLIC_API_BASE_TMDB_IMG;
+  const apiImdb = process.env.NEXT_PUBLIC_API_BASE_IMDB_SEARCH;
+
+  async function getTmdbMovieDetails() {
+    const tmdbId = await handleGetTmdbId(Number(params.movieId));
+    const url = `${apiTmdb}/${tmdbId}?api_key=${apiKeyTmdb}`;
+
+    await fetch(url)
+      .then((response) => response.json())
+      .then(async (data) => {
+        await getImdbMovieDetails(data?.imdb_id);
+        setMovieDetails(data);
+      });
+  }
+
+  function formatGenres(genres: Genre[] | undefined) {
+    if (!genres) return;
+    return genres.map((genre) => genre.name).join(", ");
+  }
+
+  async function getImdbMovieDetails(imdbId: number) {
+    const url = `${apiImdb}/?i=${imdbId}&apikey=${apiKeyImdb}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log(data);
+    setImdbDetails(data);
+  }
+
+  useEffect(() => {
+    getTmdbMovieDetails();
+  }, []);
+
+  return (
+  <>
+      <div className="w-full m-4" >
+        <Link className="flex gap-2 items-center" href="/search">
+          <ArrowLeftIcon className="w-5 h-5" />
+          <span>Back</span>
+        </Link>
+      </div>
+    <div className="flex flex-wrap gap-6 max-w-6xl mx-auto p-4 md:p-6" >
+      <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
+        <div className="relative w-full h-96">
+          <Image
+            src={imdbDetails?.Poster as string}
+            alt={movieDetails?.title as string}
+            fill
+            className="object-contain"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1 text-primary">
+            <StarIcon className="w-5 h-5 fill-current" />
+            <StarIcon className="w-5 h-5 fill-current" />
+            <StarIcon className="w-5 h-5 fill-current" />
+            <StarIcon className="w-5 h-5 fill-current" />
+            <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
+          </div>
+          <div className="text-lg font-medium">
+            {movieDetails?.vote_average}
+          </div>
+          <div className="text-muted-foreground text-sm">
+            ({movieDetails?.vote_count} reviews)
+          </div>
+        </div>
+        <div>
+          <span>Imdb ratings: {imdbDetails?.imdbRating}</span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
+        <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <CalendarIcon className="w-5 h-5" />
+            <span>{movieDetails?.release_date}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <ClockIcon className="w-5 h-5" />
+            <span>{imdbDetails?.Runtime}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <TagIcon className="w-5 h-5" />
+            <span>{formatGenres(movieDetails?.genres)}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <UserIcon className="w-5 h-5" />
+            <span>Directed by {imdbDetails?.Director}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <DollarSignIcon />
+            <span>Box Office: {imdbDetails?.BoxOffice}</span>
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl font-bold">Synopsis</h2>
+          <p className="text-muted-foreground">{movieDetails?.overview}</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-2xl font-bold">Cast</h2>
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <span>{imdbDetails?.Actors}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</>
+  );
 };
 
 const CalendarIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -118,148 +245,24 @@ const UserIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const MovieDetails = ({
-  title,
-  releaseDate,
-  duration,
-  genres,
-  director,
-  synopsis,
-  cast,
-  reviews,
-}: MovieDetailsProps) => {
-  const params = useParams();
-  const [movieDetails, setMovieDetails] = useState<MovieProps>();
-
-  async function handleGetTmdbId(movieId: number) {
-    const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
-    const data = await response.json();
-    console.log(data.tmdbId);
-    return data.tmdbId;
-  }
-
-  const apiTmdb = process.env.NEXT_PUBLIC_API_BASE_TMDB;
-  const apiToken = process.env.NEXT_PUBLIC_API_KEY_TMDB;
-
-  async function getTmdbMovieDetails() {
-    const tmdbId = await handleGetTmdbId(Number(params.movieId));
-    const url = `${apiTmdb}/${tmdbId}?api_key=${apiToken}`;
-
-    await fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        setMovieDetails(data);
-      });
-  }
-
-  function formatGenres(genres: Genre[] | undefined) {
-    if (!genres) return;
-    return genres.map((genre) => genre.name).join(", ");
-  }
-
-  //api.themoviedb.org/3/movie/9909?api_key=e179620fc822672fef4a9beeb5fd4500
-
-  useEffect(() => {
-    getTmdbMovieDetails();
-    console.log(movieDetails);
-  }, []);
-
+function DollarSignIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto p-4 md:p-6">
-      <div className="grid gap-4">
-        <Image
-          src="/placeholder.svg"
-          alt="Movie Poster"
-          width={600}
-          height={900}
-          className="rounded-lg object-cover aspect-[2/3]"
-        />
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-primary">
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
-          </div>
-          <div className="text-lg font-medium">
-            {movieDetails?.vote_average}
-          </div>
-          <div className="text-muted-foreground text-sm">
-            ({movieDetails?.vote_count} reviews)
-          </div>
-        </div>
-      </div>
-      <div className="grid gap-4">
-        <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
-        <div className="grid gap-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <CalendarIcon className="w-5 h-5" />
-            <span>{movieDetails?.release_date}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <ClockIcon className="w-5 h-5" />
-            <span>{movieDetails?.runtime} min</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <TagIcon className="w-5 h-5" />
-            <span>{formatGenres(movieDetails?.genres)}</span>
-          </div>
-        </div>
-        <div className="grid gap-2">
-          <h2 className="text-2xl font-bold">Synopsis</h2>
-          <p className="text-muted-foreground">{movieDetails?.overview}</p>
-        </div>
-        <div className="grid gap-2">
-          <h2 className="text-2xl font-bold">Cast</h2>
-          <div className="flex flex-wrap gap-2">
-            {/* {cast.map((member) => (
-              <div key={member.name} className="flex items-center gap-2">
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  width={40}
-                  height={40}
-                  className="rounded-full"
-                  style={{ aspectRatio: "40/40", objectFit: "cover" }}
-                />
-                <span>{member.name}</span>
-              </div>
-            ))} */}
-          </div>
-        </div>
-        <div className="grid gap-4">
-          <h2 className="text-2xl font-bold">User Reviews</h2>
-          <div className="grid gap-4">
-            {/* {reviews.map((review, index) => (
-              <div
-                key={index}
-                className="grid gap-2 border-l-4 border-primary pl-4"
-              >
-                <div className="flex items-center gap-2 text-primary">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <StarIcon
-                      key={i}
-                      className={`w-5 h-5 fill-current ${
-                        i < review.rating
-                          ? ""
-                          : "fill-muted stroke-muted-foreground"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className="font-medium">{review.text}</div>
-                <p className="text-muted-foreground">{review.text}</p>
-                <div className="text-sm text-muted-foreground">
-                  - {review.author}
-                </div>
-              </div>
-            ))} */}
-          </div>
-        </div>
-      </div>
-    </div>
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="12" x2="12" y1="2" y2="22" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
   );
-};
+}
 
 export default MovieDetails;

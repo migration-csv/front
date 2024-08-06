@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { fetcher } from "@/lib/functions";
 import Link from "next/link";
-import { useState } from "react";
+import { SVGProps, useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -174,7 +174,9 @@ export default function Component() {
                       <TableCell>{file.rating}</TableCell>
                       <TableCell>{file.total_ratings}</TableCell>
                       <Link href={`/detail-movie/${file.movie_id}`}>
-                        <TableCell>{"->"}</TableCell>
+                        <TableCell>
+                          <ExternalLinkIcon />
+                        </TableCell>
                       </Link>
                     </TableRow>
                   ))
@@ -197,5 +199,26 @@ export default function Component() {
         />
       </div>
     </div>
+  );
+}
+
+function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
   );
 }

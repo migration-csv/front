@@ -75,7 +75,7 @@ export default function FileDetailPage() {
       <div className="flex flex-1 flex-col p-6">
         <header className="mb-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link
+          <Link
               href="/all-files"
               className="flex items-center gap-2 rounded-md px-3 py-2 text-primary-foreground"
             >
