@@ -1,10 +1,9 @@
-/**
- * v0 by Vercel.
- * @see https://v0.dev/t/ljdJvwzldNm
- * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
- */
+"use client";
+
+import { apiBase } from "@/lib/functions";
 import Image from "next/image";
-import { SVGProps } from "react";
+import { useParams } from "next/navigation";
+import { SVGProps, useEffect, useState } from "react";
 
 type Review = {
   rating: number;
@@ -129,6 +128,42 @@ const MovieDetails = ({
   cast,
   reviews,
 }: MovieDetailsProps) => {
+  const params = useParams();
+  const [movieDetails, setMovieDetails] = useState<MovieProps>();
+
+  async function handleGetTmdbId(movieId: number) {
+    const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
+    const data = await response.json();
+    console.log(data.tmdbId);
+    return data.tmdbId;
+  }
+
+  const apiTmdb = process.env.NEXT_PUBLIC_API_BASE_TMDB;
+  const apiToken = process.env.NEXT_PUBLIC_API_KEY_TMDB;
+
+  async function getTmdbMovieDetails() {
+    const tmdbId = await handleGetTmdbId(Number(params.movieId));
+    const url = `${apiTmdb}/${tmdbId}?api_key=${apiToken}`;
+
+    await fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setMovieDetails(data);
+      });
+  }
+
+  function formatGenres(genres: Genre[] | undefined) {
+    if (!genres) return;
+    return genres.map((genre) => genre.name).join(", ");
+  }
+
+  //api.themoviedb.org/3/movie/9909?api_key=e179620fc822672fef4a9beeb5fd4500
+
+  useEffect(() => {
+    getTmdbMovieDetails();
+    console.log(movieDetails);
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto p-4 md:p-6">
       <div className="grid gap-4">
@@ -147,33 +182,33 @@ const MovieDetails = ({
             <StarIcon className="w-5 h-5 fill-current" />
             <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
           </div>
-          <div className="text-lg font-medium">4.5</div>
-          <div className="text-muted-foreground text-sm">(123 reviews)</div>
+          <div className="text-lg font-medium">
+            {movieDetails?.vote_average}
+          </div>
+          <div className="text-muted-foreground text-sm">
+            ({movieDetails?.vote_count} reviews)
+          </div>
         </div>
       </div>
       <div className="grid gap-4">
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
         <div className="grid gap-2">
           <div className="flex items-center gap-2 text-muted-foreground">
             <CalendarIcon className="w-5 h-5" />
-            <span>{releaseDate}</span>
+            <span>{movieDetails?.release_date}</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <ClockIcon className="w-5 h-5" />
-            <span>{duration}</span>
+            <span>{movieDetails?.runtime} min</span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <TagIcon className="w-5 h-5" />
-            <span>{genres}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <UserIcon className="w-5 h-5" />
-            <span>Directed by {director}</span>
+            <span>{formatGenres(movieDetails?.genres)}</span>
           </div>
         </div>
         <div className="grid gap-2">
           <h2 className="text-2xl font-bold">Synopsis</h2>
-          <p className="text-muted-foreground">{synopsis}</p>
+          <p className="text-muted-foreground">{movieDetails?.overview}</p>
         </div>
         <div className="grid gap-2">
           <h2 className="text-2xl font-bold">Cast</h2>

@@ -14,7 +14,7 @@ import {
 import { fetcher, handleDelete, handleDownload } from "@/lib/functions";
 import { ArrowLeftIcon, DownloadIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import useSWR from "swr";
 
@@ -23,6 +23,9 @@ export default function FileDetailPage() {
   const [pageIndex, setPageIndex] = useState(1);
 
   const router = useRouter();
+
+  const params = useParams();
+  console.log(params.fileName);
 
   const pathName = usePathname();
   const regex = /\/detail-file\/([^\/]+)\.csv$/;
@@ -36,7 +39,7 @@ export default function FileDetailPage() {
   );
 
   const files = data?.data;
-  const columns = data?.columns
+  const columns = data?.columns;
 
   const handleNextPage = () => {
     setPageIndex(pageIndex + 1);

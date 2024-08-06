@@ -13,8 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { apiBase, fetcher } from "@/lib/functions";
-import { useCallback, useState } from "react";
+import { fetcher } from "@/lib/functions";
+import Link from "next/link";
+import { useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -31,7 +32,6 @@ export default function Component() {
   const [quantityRating, setQuantityRating] = useState("");
   const [totalRatings, setTotalRatings] = useState("");
   const [searchKey, setSearchKey] = useState("");
-  const [tmdbId, setTmdbId] = useState(0);
 
   const { data, error, isLoading } = useSWR(
     searchKey
@@ -47,13 +47,6 @@ export default function Component() {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  const handleGetTmdbId = useCallback(async (movieId: number) => {
-    const response = await fetch(`${apiBase}/movie/get-tmd-id/${movieId}`);
-    const data = await response.json();
-    console.log(data.tmdbId);
-    setTmdbId(data.tmdbId);
-  }, []);
 
   const handleNextPage = () => {
     setCurrentPage(currentPage + 1);
@@ -175,13 +168,14 @@ export default function Component() {
                 ) : files.length > 0 ? (
                   files.map((file: File, index: number) => (
                     <TableRow key={index}>
-                      <button onClick={() => handleGetTmdbId(file.movie_id)}>
-                        <TableCell>{file.title}</TableCell>
-                      </button>
+                      <TableCell>{file.title}</TableCell>
                       <TableCell>{file.genres}</TableCell>
                       <TableCell>{file.movie_id}</TableCell>
                       <TableCell>{file.rating}</TableCell>
                       <TableCell>{file.total_ratings}</TableCell>
+                      <Link href={`/detail-movie/${file.movie_id}`}>
+                        <TableCell>{"->"}</TableCell>
+                      </Link>
                     </TableRow>
                   ))
                 ) : (
