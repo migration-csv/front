@@ -178,7 +178,7 @@ const MovieDetails = ({
         <div className="grid gap-2">
           <h2 className="text-2xl font-bold">Cast</h2>
           <div className="flex flex-wrap gap-2">
-            {cast.map((member) => (
+            {/* {cast.map((member) => (
               <div key={member.name} className="flex items-center gap-2">
                 <Image
                   src={member.image}
@@ -190,13 +190,13 @@ const MovieDetails = ({
                 />
                 <span>{member.name}</span>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
         <div className="grid gap-4">
           <h2 className="text-2xl font-bold">User Reviews</h2>
           <div className="grid gap-4">
-            {reviews.map((review, index) => (
+            {/* {reviews.map((review, index) => (
               <div
                 key={index}
                 className="grid gap-2 border-l-4 border-primary pl-4"
@@ -219,7 +219,7 @@ const MovieDetails = ({
                   - {review.author}
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { apiBase, fetcher } from "@/lib/functions";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import useSWR from "swr";
 
 type File = {
@@ -84,10 +84,6 @@ export default function Component() {
     setSearchKey(searchKeyConstructor.slice(0, -1));
     setCurrentPage(1);
   };
-
-  useEffect(() => {
-    // console.log(data);
-  }, [data]);
 
   return (
     <div className="flex min-h-screen w-full">
@@ -166,6 +162,7 @@ export default function Component() {
                   <TableHead>Total Ratings</TableHead>
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {isLoading ? (
                   <TableRow>
