@@ -11,7 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetcher, handleDelete, handleDownload } from "@/lib/functions";
+import {
+  apiBase,
+  fetcher,
+  handleDelete,
+  handleDownload,
+} from "@/lib/functions";
 import { ArrowLeftIcon, DownloadIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -47,7 +52,7 @@ export default function FileDetailPage() {
   };
 
   const handleNavigate = (url: string) => {
-    router.push(`http://localhost:3000/${url}`);
+    router.push(`${apiBase}${url}`);
   };
 
   const onDownload = useCallback(
@@ -65,7 +70,7 @@ export default function FileDetailPage() {
         <DeleteModal
           onDelete={() => {
             onDelete();
-            handleNavigate("all-files");
+            handleNavigate("/all-files");
           }}
         />
       )}
