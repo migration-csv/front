@@ -63,6 +63,11 @@ const MovieDetails = () => {
     return genres.map((genre) => genre.name).join(", ");
   }
 
+  function convertRatingToStars(rating: number | undefined): number {
+    if (!rating) return 0;
+    return Math.round(rating / 2);
+  }
+
   async function getImdbMovieDetails(imdbId: number) {
     const url = `${apiImdb}/?i=${imdbId}&apikey=${apiKeyImdb}`;
     const response = await fetch(url);
@@ -76,81 +81,86 @@ const MovieDetails = () => {
   }, []);
 
   return (
-  <>
-      <div className="w-full m-4" >
+    <>
+      <div className="w-full m-4">
         <Link className="flex gap-2 items-center" href="/search">
           <ArrowLeftIcon className="w-5 h-5" />
           <span>Back</span>
         </Link>
       </div>
-    <div className="flex flex-wrap gap-6 max-w-6xl mx-auto p-4 md:p-6" >
-      <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
-        <div className="relative w-full h-96">
-          <Image
-            src={imdbDetails?.Poster as string}
-            alt={movieDetails?.title as string}
-            fill
-            className="object-contain"
-          />
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-primary">
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-current" />
-            <StarIcon className="w-5 h-5 fill-muted stroke-muted-foreground" />
+      <div className="flex flex-wrap gap-6 max-w-6xl mx-auto p-4 md:p-6">
+        <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
+          <div className="relative w-full h-96">
+            <Image
+              src={imdbDetails?.Poster as string}
+              alt={movieDetails?.title as string}
+              fill
+              className="object-contain"
+            />
           </div>
-          <div className="text-lg font-medium">
-            {movieDetails?.vote_average}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 text-primary">
+              {[...Array(5)].map((_, index) => (
+                <StarIcon
+                  key={index}
+                  className={`w-5 h-5 fill-current ${
+                    index < convertRatingToStars(movieDetails?.vote_average)
+                      ? "text-yellow-500"
+                      : "text-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="text-lg font-medium">
+              {movieDetails?.vote_average}
+            </div>
+            <div className="text-muted-foreground text-sm">
+              ({movieDetails?.vote_count} reviews)
+            </div>
           </div>
-          <div className="text-muted-foreground text-sm">
-            ({movieDetails?.vote_count} reviews)
-          </div>
-        </div>
-        <div>
-          <span>Imdb ratings: {imdbDetails?.imdbRating}</span>
-        </div>
-      </div>
-      <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
-        <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <CalendarIcon className="w-5 h-5" />
-            <span>{movieDetails?.release_date}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <ClockIcon className="w-5 h-5" />
-            <span>{imdbDetails?.Runtime}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <TagIcon className="w-5 h-5" />
-            <span>{formatGenres(movieDetails?.genres)}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <UserIcon className="w-5 h-5" />
-            <span>Directed by {imdbDetails?.Director}</span>
-          </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <DollarSignIcon />
-            <span>Box Office: {imdbDetails?.BoxOffice}</span>
+          <div>
+            <span>Imdb ratings: {imdbDetails?.imdbRating}</span>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold">Synopsis</h2>
-          <p className="text-muted-foreground">{movieDetails?.overview}</p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold">Cast</h2>
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <span>{imdbDetails?.Actors}</span>
+        <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
+          <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <CalendarIcon className="w-5 h-5" />
+              <span>{movieDetails?.release_date}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <ClockIcon className="w-5 h-5" />
+              <span>{imdbDetails?.Runtime}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <TagIcon className="w-5 h-5" />
+              <span>{formatGenres(movieDetails?.genres)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <UserIcon className="w-5 h-5" />
+              <span>Directed by {imdbDetails?.Director}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <DollarSignIcon />
+              <span>Box Office: {imdbDetails?.BoxOffice}</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl font-bold">Synopsis</h2>
+            <p className="text-muted-foreground">{movieDetails?.overview}</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <h2 className="text-2xl font-bold">Cast</h2>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span>{imdbDetails?.Actors}</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-</>
+    </>
   );
 };
 
