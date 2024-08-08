@@ -15,10 +15,82 @@ export default function Component() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<HttpResponse | null>(null);
   const [fadeClass, setFadeClass] = useState<string>("animate-fadeIn");
+  const [isValidFile, setIsValidFile] = useState<boolean>(false);
+
+  const handleTypeFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const file = e.target.files[0];
+    setFile(file);
+
+    const arrayFileName = file.name.split(".");
+    const tableName = arrayFileName[0].replace("-", "_");
+    const extFile = arrayFileName[1];
+
+    if (extFile !== "csv") {
+      setResponse({
+        status: 400,
+        error: "The file does not have the correct format!",
+      });
+      setIsValidFile(false);
+      return;
+    }
+
+    const headersArray = await extractHeaders(file);
+    const isValid = await validateHeadersWithTable(tableName, headersArray);
+    setIsValidFile(isValid);
+  };
+
+  const extractHeaders = (file: File): Promise<string[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        const headers = text
+          .split("\n")[0]
+          .split(",")
+          .map((header) => header.replace("\r", "").toLowerCase());
+        resolve(headers);
+      };
+      reader.onerror = reject;
+      reader.readAsText(file);
+    });
+  };
+
+  const validateHeadersWithTable = async (
+    tableName: string,
+    headersArray: string[]
+  ): Promise<boolean> => {
+    try {
+      const response = await fetch(`${apiBase}/tables/columns/${tableName}`);
+      const tableColumns: string[] = await response.json();
+      const isValid = tableColumns.every((column) =>
+        headersArray.includes(column)
+      );
+      if (!isValid) {
+        setResponse({
+          status: 400,
+          error: "File headers do not match table columns",
+        });
+      }
+      return isValid;
+    } catch (error) {
+      console.error("Error fetching table columns:", error);
+      setResponse({ status: 500, error: "Failed to validate table columns" });
+      return false;
+    }
+  };
 
   const handleFileUpload = useCallback(async () => {
-    if (!file) return;
+    if (!file || !isValidFile) {
+      setResponse({
+        status: 400,
+        error: "Please select a valid CSV file",
+      });
+      return;
+    }
     setLoading(true);
+
     const tableName = file.name.split(".")[0].replace("-", "_");
     const formData = new FormData();
     formData.append("file", file);
@@ -31,24 +103,22 @@ export default function Component() {
 
       const data = await response.json();
       if (response.ok) {
-        const successResponse: SuccessResponse = {
+        setResponse({
           status: 201,
           message: data.message || "Upload successful",
-        };
-        setResponse(successResponse);
+        });
       } else {
-        const errorResponse: ErrorResponse = {
+        setResponse({
           status: response.status as 400 | 500,
           error: data.error || "Upload failed",
-        };
-        setResponse(errorResponse);
+        });
       }
     } catch (error) {
       setResponse({ status: 500, error: "Network error" });
     } finally {
       setLoading(false);
     }
-  }, [file]);
+  }, [file, isValidFile]);
 
   useEffect(() => {
     if (response) {
@@ -101,19 +171,15 @@ export default function Component() {
                 id="file-input"
                 type="file"
                 className="sr-only"
-                onChange={(e) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setFile(e.target.files[0]);
-                  }
-                }}
+                onChange={handleTypeFile}
               />
             </label>
           </div>
           <button
             type="submit"
-            className="w-full px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:bg-primary/50"
             onClick={handleFileUpload}
-            disabled={loading}
+            disabled={loading || !isValidFile}
           >
             {loading ? (
               <>

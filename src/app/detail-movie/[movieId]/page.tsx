@@ -118,9 +118,6 @@ const MovieDetails = () => {
               ({movieDetails?.vote_count} reviews)
             </div>
           </div>
-          <div>
-            <span>Imdb ratings: {imdbDetails?.imdbRating}</span>
-          </div>
         </div>
         <div className="flex flex-col gap-4 flex-1 min-w-full md:min-w-0">
           <h1 className="text-3xl font-bold">{movieDetails?.title}</h1>
