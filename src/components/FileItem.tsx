@@ -21,7 +21,7 @@ export function FileItem({fileName, uploadedAt, onDelete, executionTime}: FileIt
                         <div className="font-medium">{fileName}</div>
                         <div className="flex items-center gap-2">
                             <div className="text-sm text-muted-foreground">Update_at: {uploadedAt}</div>
-                            <div>Execution_time: {executionTime}</div>
+                            <div>Execution_time: {executionTime} seconds</div>
                         </div>
                     </div>
                 </div>
